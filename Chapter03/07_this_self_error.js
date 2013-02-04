@@ -7,8 +7,9 @@ function FileObject () {
 
     this.file_exists = function (callback) {
         if (!this.filename) {
-            callback({ error: "invalid_filename",
-                       message: "You need provide a valid filename"});
+            var e = new Error("invalid_filename");
+            e.description = "You need to provide a valid filename";
+            callback(e);
             return;
         }
 
@@ -16,10 +17,11 @@ function FileObject () {
         fs.open(this.filename, 'r', function (err, handle) {
             if (err) {
                 console.log("Can't open: " + this.filename);
-                callback(err);
+                callback(null, false);
                 return;
             }
 
+            console.log("can open: " + this.filename);
             fs.close(handle, function () { });
             callback(null, true);
         });
@@ -31,11 +33,11 @@ fo.filename = "file_that_does_not_exist";
 
 fo.file_exists(function (err, results) {
     if (err) {
-        console.log("Aw, bummer: " + JSON.stringify(err));
+        console.log("WAT: " + JSON.stringify(err));
         return;
     }
 
-    console.log("file exists!!!");
+    console.log(results ? "file exists!!!" : "bummer!");
 });
 
 

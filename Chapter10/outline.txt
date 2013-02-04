@@ -1,0 +1,25 @@
+
+
+-- Deployment: basic
+   -- node x
+   -- while 1 node x
+
+-- Deployment: ninja
+    -- check out memory usage and don't restart more than 10x in < 1m
+    -- windows node deployment as a service
+
+-- multi-core deployment
+   -- reverse proxy (node-http-proxy)
+
+-- virtual hosting
+   -- express support
+   -- reverse proxy (node-http-proxy)
+
+-- https/ssl
+   -- native support in express
+   -- reverse proxy (node-http-proxy)
+
+-- multi-platform development
+   -- configuration files
+   -- handling path differences
+

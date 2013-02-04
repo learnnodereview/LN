@@ -50,8 +50,7 @@ function load_album_list(callback) {
         "../static/albums",
         function (err, files) {
             if (err) {
-                callback({ error: "file_error",
-                           message: JSON.stringify(err) });
+                callback(helpers.make_error("file_error", JSON.stringify(err)));
                 return;
             }
 
@@ -63,8 +62,8 @@ function load_album_list(callback) {
                         "../static/albums/" + element,
                         function (err, stats) {
                             if (err) {
-                                cb({ error: "file_error",
-                                     message: JSON.stringify(err) });
+                                cb(helpers.make_error("file_error",
+                                                      JSON.stringify(err)));
                                 return;
                             }
                             if (stats.isDirectory()) {
@@ -90,8 +89,8 @@ function load_album(album_name, page, page_size, callback) {
                 if (err.code == "ENOENT") {
                     callback(helpers.no_such_album());
                 } else {
-                    callback({ error: "file_error",
-                               message: JSON.stringify(err) });
+                    callback(helpers.make_error("file_error",
+                                                JSON.stringify(err)));
                 }
                 return;
             }
@@ -106,8 +105,8 @@ function load_album(album_name, page, page_size, callback) {
                         path + element,
                         function (err, stats) {
                             if (err) {
-                                cb({ error: "file_error",
-                                     message: JSON.stringify(err) });
+                                cb(helpers.make_error("file_error",
+                                                      JSON.stringify(err)));
                                 return;
                             }
                             if (stats.isFile()) {

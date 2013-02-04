@@ -25,8 +25,8 @@ Album.prototype.photos = function (callback) {
                 if (err.code == "ENOENT") {
                     callback(no_such_album());
                 } else {
-                    callback({ error: "file_error",
-                               message: JSON.stringify(err) });
+                    callback(make_error("file_error",
+                                        JSON.stringify(err)));
                 }
                 return;
             }
@@ -43,8 +43,8 @@ Album.prototype.photos = function (callback) {
                     self.path + "/" + files[index],
                     function (err, stats) {
                         if (err) {
-                            callback({ error: "file_error",
-                                       message: JSON.stringify(err) });
+                            callback(make_error("file_error",
+                                                JSON.stringify(err)));
                             return;
                         }
                         if (stats.isFile()) {
@@ -65,8 +65,14 @@ exports.create_album = function (path) {
 };
 
 
+function make_error(err, msg) {
+    var e = new Error(msg);
+    e.code = err;
+    return e;
+}
+
 
 function no_such_album() {
-    return { error: "no_such_album",
-             message: "The specified album does not exist" };
+    return make_error("no_such_album",
+                      "The specified album does not exist");
 }

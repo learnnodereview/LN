@@ -9,8 +9,8 @@ function load_file_contents(path, callback) {
             callback(err);
             return;
         } else if (!f) {
-            callback({ error: "invalid_handle",
-                       message: "bad file handle from fs.open"});
+            callback(make_error("invalid_handle",
+                                "bad file handle from fs.open"));
             return;
         }
         fs.fstat(f, function (err, stats) {
@@ -35,8 +35,7 @@ function load_file_contents(path, callback) {
                     });
                 });
             } else {
-                calback({ error: "not_file",
-                          message: "Can't load directory" });
+                calback(make_error("not_file", "Can't load directory"));
                 return;
             }
         });
@@ -46,48 +45,35 @@ function load_file_contents(path, callback) {
 
 
 function load_file_contents2(path, callback) {
-
+    var f;
     async.waterfall([
-        function (callback) {
-            // the data passed to this function, the file handle
-            // is passed as a parameter to the next function in 
-            // the waterfall!!
-            fs.open(path, 'r', callback);
+        function (cb) {             // cb stands for "callback"
+            fs.open(path, 'r', cb);
         },
-        function (f, callback) {
-            fs.fstat(f, function (err, stats) {
-                if (err) 
-                    callback(err);
-                else
-                    callback(null, f, stats);
-            });
+        // the handle was passed to the callback at the end of
+        // the fs.open function call. async passes ALL params to us.
+        function (handle, cb) {
+            f = handle
+            fs.fstat(f, cb);
         },
-        function (f, stats, callback) {
+        function (stats, cb) {
             if (stats.isFile()) {
-                var b = new Buffer(10000);
-                fs.read(f, b, 0, 10000, null, function (err, br, buf) {
-                    if (err)
-                        callback(err);
-                    else
-                        callback(null, f, b.toString('utf8', 0, br));
-                });
+                fs.read(f, b, 0, 100000, null, cb);
             } else {
-                calback({ error: "not_file",
-                          message: "Can't load directory" });
+                calback(make_error("not_file", "Can't load directory"));
             }
         },
-        function (f, contents, callback) {
+        function (bytes_read, buffer, cb) {
             fs.close(f, function (err) {
                 if (err)
-                    callback(err);
+                    cb(err);
                 else
-                    callback(null, contents);
-            });
+                    cb(null, buffer.toString('utf8', 0, bytes_read));
+            })
         }
-    ]
-      // this is called after all have executed in success
-      // case, or as soon as there is an error.
-    , function (err, file_contents) {
+    ],
+    // called after all fns have finished, or then there is an error.
+    function (err, file_contents) {
         callback(err, file_contents);
     });
 }
@@ -114,3 +100,10 @@ load_file_contents2(
             console.log(contents);
     }
 );
+
+function make_error(err, msg) {
+    var e = new Error(msg);
+    e.code = msg;
+    return e;
+}
+

@@ -1,0 +1,13 @@
+
+- simple mongodb exmaples using node-mongodb-native
+
+- add new album.
+- get album.
+- add photo(s) to ablum.
+- get photos from album.
+- update album.
+- update photos (desc)
+
+
+
+

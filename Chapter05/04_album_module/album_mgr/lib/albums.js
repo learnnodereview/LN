@@ -28,8 +28,8 @@ exports.albums = function (root, callback) {
                     root + "albums/" + files[index],
                     function (err, stats) {
                         if (err) {
-                            callback({ error: "file_error", 
-                                       message: JSON.stringify(err) });
+                            callback(make_error("file_error",
+                                                JSON.stringify(err)));
                             return;
                         }
                         if (stats.isDirectory()) {
@@ -43,4 +43,10 @@ exports.albums = function (root, callback) {
         }
     );
 };
+
+function make_error(err, msg) {
+    var e = new Error(msg);
+    e.code = err;
+    return e;
+}
 

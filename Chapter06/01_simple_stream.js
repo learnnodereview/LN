@@ -6,11 +6,22 @@ var contents;
 // INCEPTION BWAAAAAAA!!!!
 var rs = fs.createReadStream("01_simple_stream.js");
 
-rs.on('data', function (data) {
-    if (!contents) 
-        contents = data;
-    else
-        contents = contents.concat(data);
+rs.on('readable', function () {
+    var str;
+    var d = rs.read();
+    if (d) {
+        if (typeof d == 'string') {
+            str = d;
+        } else if (typeof d == 'object' && d instanceof Buffer) {
+            str = d.toString('utf8');
+        }
+        if (str) {
+            if (!contents) 
+                contents = d;
+            else
+                contents += str;
+        }
+    }
 });
 
 rs.on('end', function () {

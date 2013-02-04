@@ -9,8 +9,9 @@ function FileObject () {
         var self = this;
 
         if (!this.filename) {
-            callback({ error: "invalid_filename",
-                       message: "You need provide a valid filename"});
+            var e = new Error("invalid_filename");
+            e.description = "You need to provide a valid filename";
+            callback(e);
             return;
         }
 
@@ -18,7 +19,7 @@ function FileObject () {
         fs.open(this.filename, 'r', function (err, handle) {
             if (err) {
                 console.log("Can't open: " + self.filename);
-                callback(err);
+                callback(null, false);
                 return;
             }
 

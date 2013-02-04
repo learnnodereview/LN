@@ -34,9 +34,15 @@ function serve_static_file(file, res) {
     );
 
     rs.on(
-        'data',
-        function (data_buffer) {
-            res.write(data_buffer);
+        'readable',
+        function () {
+            var d = rs.read();
+            if (d) {
+                if (typeof d == 'string')
+                    res.write(d);
+                else if (typeof d == 'object' && d instanceof Buffer)
+                    res.write(d.toString('utf8'));
+            }
         }
     );
 
@@ -59,6 +65,7 @@ function content_type_for_path (file) {
         default: return 'text/plain';
     }
 }
+
 
 
 var s = http.createServer(handle_incoming_request);

@@ -34,9 +34,10 @@ function serve_static_file(file, res) {
     );
 
     rs.on(
-        'data',
-        function (data_buffer) {
-            if (!res.write(data_buffer)) {
+        'readable',
+        function () {
+            var data = rs.read();
+            if (!res.write(data)) {
                 rs.pause();
             }
         }

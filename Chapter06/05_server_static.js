@@ -45,8 +45,7 @@ function load_album_list(callback) {
         "albums",
         function (err, files) {
             if (err) {
-                callback({ error: "file_error",
-                           message: JSON.stringify(err) });
+                callback(make_error("file_error"), JSON.stringify(err));
                 return;
             }
 
@@ -62,8 +61,8 @@ function load_album_list(callback) {
                     "albums/" + files[index],
                     function (err, stats) {
                         if (err) {
-                            callback({ error: "file_error",
-                                       message: JSON.stringify(err) });
+                            callback(make_error("file_error",
+                                                JSON.stringify(err)));
                             return;
                         }
                         if (stats.isDirectory()) {
@@ -86,8 +85,8 @@ function load_album(album_name, page, page_size, callback) {
                 if (err.code == "ENOENT") {
                     callback(no_such_album());
                 } else {
-                    callback({ error: "file_error",
-                               message: JSON.stringify(err) });
+                    callback(make_error("file_error",
+                                        JSON.stringify(err)));
                 }
                 return;
             }
@@ -111,8 +110,8 @@ function load_album(album_name, page, page_size, callback) {
                     path + files[index],
                     function (err, stats) {
                         if (err) {
-                            callback({ error: "file_error",
-                                       message: JSON.stringify(err) });
+                            callback(make_error("file_error",
+                                                JSON.stringify(err)));
                             return;
                         }
                         if (stats.isFile()) {
@@ -190,28 +189,35 @@ function handle_get_album(req, res) {
 }
 
 
+
+
+function make_error(err, msg) {
+    var e = new Error(msg);
+    e.code = err;
+    return e;
+}
+
 function send_success(res, data) {
     res.writeHead(200, {"Content-Type": "application/json"});
     var output = { error: null, data: data };
     res.end(JSON.stringify(output) + "\n");
-
 }
 
-
 function send_failure(res, code, err) {
+    var code = (err.code) ? err.code : err.name;
     res.writeHead(code, { "Content-Type" : "application/json" });
-    res.end(JSON.stringify(err) + "\n");
+    res.end(JSON.stringify({ error: code, message: err.message }) + "\n");
 }
 
 
 function invalid_resource() {
-    return { error: "invalid_resource",
-             message: "the requested resource does not exist." };
+    return make_error("invalid_resource",
+                      "the requested resource does not exist.");
 }
 
 function no_such_album() {
-    return { error: "no_such_album",
-             message: "The specified album does not exist" };
+    return make_error("no_such_album",
+                      "The specified album does not exist");
 }
 
 

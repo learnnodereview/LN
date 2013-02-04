@@ -5,16 +5,16 @@ var buf = new Buffer(100000);
 
 fs.open(
     'info.txt', 'r',
-    function (handle) {
+    function (err, handle) {
         file = handle;
     }
 );
 
 fs.read(
     file, buf, 0, 100000, null,
-    function () {
+    function (err, length) {
         console.log(buf.toString());
-        file.close(file, function () { /* don't care */ });
+        fs.close(file, function () { /* don't care */ });
     }
 );
 

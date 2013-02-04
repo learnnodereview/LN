@@ -4,9 +4,16 @@ var http = require('http'), qs = require('querystring');
 function handle_incoming_request(req, res) {
     var body = '';
     req.on(
-        'data',
-        function (data) {
-            body += data;
+        'readable',
+        function () {
+            var d = req.read();
+            if (d) {
+                if (typeof d == 'string') {
+                    body += d;
+                } else if (typeof d == 'object' && d instanceof Buffer) {
+                    body += d.toString('utf8');
+                }
+            }
         }
     );
 

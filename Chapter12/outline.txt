@@ -1,0 +1,17 @@
+
+-- testing options
+
+-- getting started with nodeunit
+   X- installation
+   X- simplest test
+   X- running
+
+-- function stuff
+   X- basics
+   X- asynchronous
+   x- groups
+
+-- api testing
+   -- request library
+   -- testing our server
+   -- adding some logic to start/stop server

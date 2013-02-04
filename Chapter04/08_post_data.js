@@ -11,8 +11,7 @@ function load_album_list(callback) {
         "albums",
         function (err, files) {
             if (err) {
-                callback({ error: "file_error",
-                           message: JSON.stringify(err) });
+                callback(make_error("file_error",  JSON.stringify(err)));
                 return;
             }
 
@@ -28,8 +27,8 @@ function load_album_list(callback) {
                     "albums/" + files[index],
                     function (err, stats) {
                         if (err) {
-                            callback({ error: "file_error",
-                                       message: JSON.stringify(err) });
+                            callback(make_error("file_error",
+                                                JSON.stringify(err)));
                             return;
                         }
                         if (stats.isDirectory()) {
@@ -54,8 +53,8 @@ function load_album(album_name, page, page_size, callback) {
                 if (err.code == "ENOENT") {
                     callback(no_such_album());
                 } else {
-                    callback({ error: "file_error",
-                               message: JSON.stringify(err) });
+                    callback(make_error("file_error",
+                                        JSON.stringify(err)));
                 }
                 return;
             }
@@ -78,8 +77,8 @@ function load_album(album_name, page, page_size, callback) {
                     path + files[index],
                     function (err, stats) {
                         if (err) {
-                            callback({ error: "file_error",
-                                       message: JSON.stringify(err) });
+                            callback(make_error("file_error",
+                                                JSON.stringify(err)));
                             return;
                         }
                         if (stats.isFile()) {
@@ -101,7 +100,7 @@ function do_rename(old_name, new_name, callback) {
     // rename the album folder.
     fs.rename(
         "albums/" + old_name,
-        "albums/" + data.album_name,
+        "albums/" + new_name,
         callback);
 }
 
@@ -178,7 +177,7 @@ function handle_rename_album(req, res) {
     var core_url = req.parsed_url.pathname;
     var parts = core_url.split('/');
     if (parts.length != 4) {
-        send_failure(res, invalid_resource(core_url), 404);
+        send_failure(res, 404, invalid_resource(core_url));
         return;
     }
 
@@ -188,9 +187,18 @@ function handle_rename_album(req, res) {
     // for the new name for the album.
     var json_body = '';
     req.on(
-        'data',
-        function (data) {
-            json_body += data;
+        'readable',
+        function () {
+            var d = req.read();
+            console.log(d);
+            console.log(typeof d);
+            if (d) {
+                if (typeof d == 'string') {
+                    json_body += d;
+                } else if (typeof d == 'object' && d instanceof Buffer) {
+                    json_body += d.toString('utf8');
+                }
+            }
         }
     );
 
@@ -204,12 +212,12 @@ function handle_rename_album(req, res) {
                 try {
                     var album_data = JSON.parse(json_body);
                     if (!album_data.album_name) {
-                       send_failure(res, missing_data('album_name'), 403);
+                        send_failure(res, 404, missing_data('album_name'));
                        return;
                     }
                 } catch (e) {
                     // got a body, but not valid json
-                    send_failure(res, bad_json(), 403);
+                    send_failure(res, 403, bad_json());
                     return;
                 }
 
@@ -219,72 +227,77 @@ function handle_rename_album(req, res) {
                     album_data.album_name, // new
                     function (err, results) {
                         if (err && err.code == "ENOENT") {
-                            send_failure(res, no_such_album(), 403);
+                            send_failure(res, 403, no_such_album());
                             return;
                         } else if (err) {
-                            send_failure(res, file_error(err), 500);
+                            send_failure(res, 500, file_error(err));
                             return;
                         }
                         send_success(res, null);
                     }
                 );
             } else {
-                send_failure(res, bad_json(), 403);
+                send_failure(res, 403, bad_json());
                 res.end();
             }
         }
     );
-
-
 }
 
 
+
+
+
+
+
+function make_error(err, msg) {
+    var e = new Error(msg);
+    e.code = err;
+    return e;
+}
 
 
 function send_success(res, data) {
     res.writeHead(200, {"Content-Type": "application/json"});
     var output = { error: null, data: data };
     res.end(JSON.stringify(output) + "\n");
-
 }
 
 
 function send_failure(res, code, err) {
+    var code = (err.code) ? err.code : err.name;
     res.writeHead(code, { "Content-Type" : "application/json" });
-    res.end(JSON.stringify(err) + "\n");
+    res.end(JSON.stringify({ error: code, message: err.message }) + "\n");
 }
 
 
-function file_error(err) {
-    var msg = "There was a file error on the server: " + err.message;
-    return { error: "server_file_error", message: msg };
-}
-
-
-function invalid_resource(url) {
-    var msg = url
-        ? "the requested resource (" + url + ") does not exist."
-        : "the requested resource does not exist."
-    return { error: "invalid_resource", message: msg };
+function invalid_resource() {
+    return make_error("invalid_resource",
+                      "the requested resource does not exist.");
 }
 
 function no_such_album() {
-    return { error: "no_such_album",
-             message: "The specified album does not exist" };
+    return make_error("no_such_album",
+                      "The specified album does not exist");
 }
 
+function file_error(err) {
+    var msg = "There was a file error on the server: " + err.message;
+    return make_error("server_file_error", msg);
+}
 
 function missing_data (missing) {
     var msg = missing
         ? "Your request is missing: '" + missing + "'"
         : "Your request is missing some data.";
-    return { error: "missing_data", message: msg };
+    return make_error("missing_data", msg);
 }
 
 function bad_json() {
-    return { error: "invalid_json",
-             message: "the provided data is not valid JSON" };
+    return make_error("invalid_json",
+                      "the provided data is not valid JSON");
 }
+
 
 var s = http.createServer(handle_incoming_request);
 s.listen(8080);
