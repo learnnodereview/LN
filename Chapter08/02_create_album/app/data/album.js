@@ -26,6 +26,7 @@ exports.create_album = function (data, callback) {
                     throw invalid_album_name();
             } catch (e) {
                 cb(e);
+                return;
             }
             cb(null, data);
         },
@@ -78,7 +79,7 @@ exports.album_by_name = function (name, callback) {
         } else {
             console.error("More than one album named: " + name);
             console.error(results);
-            callback(backutils.db_error());
+            callback(backhelp.db_error());
         }
     });
 };
@@ -125,6 +126,7 @@ exports.add_photo = function (photo_data, path_to_photo, callback) {
                     throw invalid_album_name();
             } catch (e) {
                 cb(e);
+                return;
             }
 
             cb(null, photo_data);

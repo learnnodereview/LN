@@ -103,4 +103,9 @@ exports.user_already_registered = function () {
                          "This user appears to exist already!");
 };
 
+exports.no_such_album = function () {
+    return exports.error("no_such_album",
+                         "The specified album does not exist");
+};
+
 

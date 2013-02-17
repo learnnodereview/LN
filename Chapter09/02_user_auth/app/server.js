@@ -11,10 +11,11 @@ var db = require('./data/db.js'),
 app.use(express.logger('dev'));
 app.use(express.bodyParser({ keepExtensions: true }));
 app.use(express.static(__dirname + "/../static"));
-app.use(express.cookieParser("kitten on  keyboard"));
+app.use(express.cookieParser());
 app.use(express.cookieSession({
     secret: "FLUFFY BUNNIES",
-    maxAge: 86400000
+    maxAge: 86400000,
+    store: new express.session.MemoryStore()
 }));
 
 /**
