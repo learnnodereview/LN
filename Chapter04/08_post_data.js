@@ -187,9 +187,8 @@ function handle_rename_album(req, res) {
     // for the new name for the album.
     var json_body = '';
     req.on(
-        'readable',
-        function () {
-            var d = req.read();
+        'data',
+        function (d) {
             console.log(d);
             console.log(typeof d);
             if (d) {
