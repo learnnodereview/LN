@@ -4,9 +4,8 @@ var http = require('http'), qs = require('querystring');
 function handle_incoming_request(req, res) {
     var body = '';
     req.on(
-        'readable',
-        function () {
-            var d = req.read();
+        'data',
+        function (d) {
             if (d) {
                 if (typeof d == 'string') {
                     body += d;
