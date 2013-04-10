@@ -6,7 +6,7 @@ fs.open(
     'info.txt', 'r',
     function (err, handle) {
         if (err) {
-            console.log("ERROR: " + err.code + " (" + err.message ")");
+            console.log("ERROR: " + err.code + " (" + err.message + ")");
             return;
         }
         var buf = new Buffer(100000);
@@ -15,7 +15,7 @@ fs.open(
             function (err, length) {
                 if (err) {
                     console.log("ERROR: " + err.code
-                                + " (" + err.message ")");
+                                + " (" + err.message + ")");
                     return;
                 }
                 console.log(buf.toString('utf8', 0, length));

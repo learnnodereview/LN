@@ -57,6 +57,7 @@ function load_file_contents2(path, callback) {
             fs.fstat(f, cb);
         },
         function (stats, cb) {
+            var b = new Buffer(100000);
             if (stats.isFile()) {
                 fs.read(f, b, 0, 100000, null, cb);
             } else {
@@ -82,7 +83,7 @@ function load_file_contents2(path, callback) {
 
 
 load_file_contents(
-    "/Users/marcw/test.txt", 
+    "test.txt", 
     function (err, contents) {
         if (err)
             console.log(err);
@@ -92,7 +93,7 @@ load_file_contents(
 );
 
 load_file_contents2(
-    "/Users/marcw/test.txt", 
+    "test.txt", 
     function (err, contents) {
         if (err)
             console.log(err);

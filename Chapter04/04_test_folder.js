@@ -22,7 +22,7 @@ function load_album_list(callback) {
                 }
 
                 fs.stat(
-                    files[index],
+                    "albums/" + files[index],
                     function (err, stats) {
                         if (err) {
                             callback(err);
