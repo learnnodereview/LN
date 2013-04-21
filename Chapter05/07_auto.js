@@ -6,12 +6,12 @@ async.auto({
     numbers: function (callback) {
         setTimeout(function () {
             callback(null, [ 1, 2, 3 ]);
-        });
+        }, 1500);
     },
     strings: function (callback) {
         setTimeout(function () {
             callback(null, [ "a", "b", "c" ]);
-        });
+        }, 2000);
     },
     assemble: [ 'numbers', 'strings', function (callback, thus_far) {
         callback(null, {
